@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/album_item_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:focusable="false"
+    android:orientation="vertical">
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/album_item_image"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:scaleType="centerCrop"
+        app:layout_constraintDimensionRatio="w,1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:viewAspectRatio="1"/>
+
+    <TextView
+        android:id="@+id/album_item_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:background="@color/black_overlay"
+        android:ellipsize="end"
+        android:focusable="false"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:minLines="1"
+        android:padding="12dp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/album_item_image"
+        app:layout_constraintEnd_toStartOf="@+id/album_item_count"
+        app:layout_constraintStart_toStartOf="@+id/album_item_image"
+        tools:text="Album name"/>
+
+    <TextView
+        android:id="@+id/album_item_count"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_centerVertical="true"
+        android:background="@color/black_overlay"
+        android:focusable="false"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:minLines="1"
+        android:paddingEnd="12dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingStart="12dp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/album_item_image"
+        app:layout_constraintEnd_toEndOf="@+id/album_item_image"
+        app:layout_constraintTop_toTopOf="@+id/album_item_name"
+        tools:text="100"/>
+
+    <!--<TextView-->
+    <!--android:id="@+id/album_name"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignTop="@id/album_cover"-->
+    <!--android:layout_marginLeft="8dp"-->
+    <!--android:layout_toRightOf="@id/album_cover"-->
+    <!--android:ellipsize="end"-->
+    <!--android:maxLines="1"-->
+    <!--android:textSize="16sp"/>-->
+
+    <!--<TextView-->
+    <!--android:id="@+id/album_media_count"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignLeft="@id/album_name"-->
+    <!--android:layout_below="@id/album_name"-->
+    <!--android:layout_marginTop="4dp"-->
+    <!--android:layout_toRightOf="@id/album_cover"-->
+    <!--android:ellipsize="end"-->
+    <!--android:maxLines="1"-->
+    <!--android:textSize="14sp"/>-->
+</android.support.constraint.ConstraintLayout>
