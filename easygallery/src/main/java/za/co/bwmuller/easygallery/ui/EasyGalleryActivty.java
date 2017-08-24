@@ -5,12 +5,12 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 
-import za.co.bwmuller.easygallery.Config;
 import za.co.bwmuller.easygallery.R;
-import za.co.bwmuller.easygallery.model.Album;
-import za.co.bwmuller.easygallery.model.Media;
 import za.co.bwmuller.easygallery.ui.album.AlbumFragment;
 import za.co.bwmuller.easygallery.ui.media.MediaFragment;
+import za.co.bwmuller.easygallerycore.Config;
+import za.co.bwmuller.easygallerycore.model.Album;
+import za.co.bwmuller.easygallerycore.model.Media;
 
 public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragment.OnAlbumFragmentListener, MediaFragment.OnMediaFragmentListener {
 
@@ -19,13 +19,18 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
             mediaGridColumnCount = 3;
             albumGridColumnCount = 2;
             loaderScope = Scope.IMAGES;
-        }};
+        }}.addExcludedDirectory("/Kalido/");
     }
 
     @Override public void onAlbumSelected(Album item) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content, MediaFragment.newInstance(item), item.getId())
                 .commit();
+    }
+
+    @Override public void onBackPressed() {
+        if (!getSupportFragmentManager().popBackStackImmediate())
+            super.onBackPressed();
     }
 
     @Override

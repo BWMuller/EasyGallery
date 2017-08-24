@@ -11,12 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import za.co.bwmuller.easygallery.Config;
+import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallery.R;
-import za.co.bwmuller.easygallery.data.loader.AlbumCallback;
-import za.co.bwmuller.easygallery.data.loader.AlbumMediaLoader;
-import za.co.bwmuller.easygallery.model.Album;
-import za.co.bwmuller.easygallery.model.Media;
+import za.co.bwmuller.easygallerycore.data.loader.AlbumCallback;
+import za.co.bwmuller.easygallerycore.data.loader.AlbumMediaLoader;
+import za.co.bwmuller.easygallerycore.model.Album;
+import za.co.bwmuller.easygallerycore.model.Media;
 
 /**
  * A fragment representing a list of Items.

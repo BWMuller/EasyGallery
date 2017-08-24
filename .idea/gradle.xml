@@ -10,6 +10,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/easygallery" />
+            <option value="$PROJECT_DIR$/easygallery-core" />
             <option value="$PROJECT_DIR$/easypermissions" />
           </set>
         </option>

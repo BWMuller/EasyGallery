@@ -14,9 +14,9 @@ import com.facebook.imagepipeline.common.RotationOptions;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 import za.co.bwmuller.easygallery.R;
-import za.co.bwmuller.easygallery.internal.ui.RecyclerViewCursorAdapter;
-import za.co.bwmuller.easygallery.data.loader.AlbumCallback;
-import za.co.bwmuller.easygallery.model.Media;
+import za.co.bwmuller.easygallerycore.ui.RecyclerViewCursorAdapter;
+import za.co.bwmuller.easygallerycore.data.loader.AlbumCallback;
+import za.co.bwmuller.easygallerycore.model.Media;
 
 public class MediaAdapter extends RecyclerViewCursorAdapter<MediaAdapter.ViewHolder> {
 

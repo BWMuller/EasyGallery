@@ -1,1 +1,1 @@
-include ':app', ':easygallery', ':easypermissions'
+include ':app', ':easygallery', ':easypermissions', ':easygallery-core'

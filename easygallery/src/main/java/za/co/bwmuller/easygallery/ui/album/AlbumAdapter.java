@@ -14,11 +14,11 @@ import com.facebook.imagepipeline.common.ResizeOptions;
 import com.facebook.imagepipeline.common.RotationOptions;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
-import za.co.bwmuller.easygallery.Config;
+import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallery.R;
-import za.co.bwmuller.easygallery.internal.ui.ItemViewClickListener;
-import za.co.bwmuller.easygallery.internal.ui.RecyclerViewCursorAdapter;
-import za.co.bwmuller.easygallery.model.Album;
+import za.co.bwmuller.easygallery.ui.ItemViewClickListener;
+import za.co.bwmuller.easygallerycore.ui.RecyclerViewCursorAdapter;
+import za.co.bwmuller.easygallerycore.model.Album;
 
 public class AlbumAdapter extends RecyclerViewCursorAdapter<AlbumAdapter.ViewHolder> {
 
