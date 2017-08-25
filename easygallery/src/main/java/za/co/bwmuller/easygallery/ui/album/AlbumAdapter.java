@@ -65,7 +65,7 @@ public class AlbumAdapter extends RecyclerViewCursorAdapter<AlbumAdapter.ViewHol
     }
 
     @Override protected int getItemViewType(int position, Cursor cursor) {
-        return 0;
+        return position;
     }
 
     @Override

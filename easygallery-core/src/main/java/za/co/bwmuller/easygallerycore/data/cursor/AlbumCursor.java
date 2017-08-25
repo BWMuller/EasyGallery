@@ -40,6 +40,7 @@ public class AlbumCursor extends CursorLoader {
     public static final String BUCKET_DISPLAY_NAME = MediaStore.Images.Media.BUCKET_DISPLAY_NAME;
 
     private static final Uri QUERY_URI = MediaStore.Files.getContentUri("external");
+    private static final String BUCKET_ORDER_BY = MediaStore.Images.Media.DATE_TAKEN + " DESC";
     private static final String[] COLUMNS = {
             MediaStore.Files.FileColumns._ID,
             BUCKET_ID,
@@ -75,7 +76,6 @@ public class AlbumCursor extends CursorLoader {
             MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
                     + " AND " + MediaStore.MediaColumns.SIZE + ">0"
                     + ") GROUP BY (" + BUCKET_ID;
-    private static final String BUCKET_ORDER_BY = MediaStore.Images.Media.DATE_TAKEN + " DESC";
     // =============================================
     private Config mConfig;
 
@@ -92,17 +92,13 @@ public class AlbumCursor extends CursorLoader {
 
         if (mConfig.albumLoader != null) {
             ArrayList<Album> customAlbums = mConfig.albumLoader.prefixAlbums();
-            if (customAlbums != null && !customAlbums.isEmpty()) {
+            if (customAlbums != null && !customAlbums.isEmpty())
                 prefixAlbums = customAlbums;
-            }
         }
         if (mConfig.albumLoader != null) {
             ArrayList<Album> customAlbums = mConfig.albumLoader.postfixAlbums();
-            if (customAlbums != null && !customAlbums.isEmpty()) {
-                for (Album customAlbum : customAlbums) {
-                    postfixAlbums = customAlbums;
-                }
-            }
+            if (customAlbums != null && !customAlbums.isEmpty())
+                postfixAlbums = customAlbums;
         }
 
         MatrixCursor sortedAlbums = new MatrixCursor(COLUMNS);
@@ -118,6 +114,7 @@ public class AlbumCursor extends CursorLoader {
                 totalCount += album.getCount();
                 long date = album.getDateTaken();
                 if (dateTaken < date) {
+                    dateTaken = date;
                     allAlbumCoverId = album.getCoverId();
                     allAlbumCoverPath = album.getCoverPath();
                 }
@@ -127,6 +124,7 @@ public class AlbumCursor extends CursorLoader {
             totalCount += prefixAlbum.getCount();
             long date = prefixAlbum.getDateTaken();
             if (dateTaken < date) {
+                dateTaken = date;
                 allAlbumCoverId = prefixAlbum.getCoverId();
                 allAlbumCoverPath = prefixAlbum.getCoverPath();
             }
@@ -136,6 +134,7 @@ public class AlbumCursor extends CursorLoader {
             totalCount += postfixAlbum.getCount();
             long date = postfixAlbum.getDateTaken();
             if (dateTaken < date) {
+                dateTaken = date;
                 allAlbumCoverId = postfixAlbum.getCoverId();
                 allAlbumCoverPath = postfixAlbum.getCoverPath();
             }

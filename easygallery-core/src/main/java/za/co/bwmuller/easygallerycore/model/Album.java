@@ -36,8 +36,16 @@ public class Album implements Parcelable {
     private long dateTaken;
     private boolean customAlbum;
 
-    public Album(String dbId, String id, String name, String coverMimeType, long coverId, long dateTaken, long count) {
-        this(dbId, id, name, coverMimeType, coverId, dateTaken, count, true);
+    public Album(String dbId, String id, String name, String coverUri, long dateTaken, long count) {
+        this.dbId = dbId;
+        this.id = id;
+        this.name = name;
+        this.coverMimeType = coverUri;
+        this.coverId = 0;
+        this.coverUri = Uri.parse(coverUri);
+        this.dateTaken = dateTaken;
+        this.count = count;
+        this.customAlbum = true;
     }
 
     Album(String dbId, String id, String name, String coverMimeType, long coverId, long dateTaken, long count, boolean customAlbum) {
@@ -46,23 +54,29 @@ public class Album implements Parcelable {
         this.name = name;
         this.coverMimeType = coverMimeType;
         this.coverId = coverId;
-        this.coverUri = ContentUriUtil.getPath(coverMimeType, coverId);
         this.dateTaken = dateTaken;
         this.count = count;
         this.customAlbum = customAlbum;
+        if (customAlbum || ALBUM_ALL_ID.equals(id))
+            this.coverUri = Uri.parse(coverMimeType);
+        else
+            this.coverUri = ContentUriUtil.getPath(coverMimeType, coverId);
     }
 
-    public Album(String dbId, String id, String name, String coverMimeType, long coverId, long dateTaken, long count, boolean customAlbum, boolean video) {
+    Album(String dbId, String id, String name, String coverMimeType, long coverId, long dateTaken, long count, boolean customAlbum, boolean video) {
         this.dbId = dbId;
         this.id = id;
         this.coverMimeType = coverMimeType;
         this.coverId = coverId;
-        this.coverUri = ContentUriUtil.getPath(coverMimeType, coverId);
         this.dateTaken = dateTaken;
         this.count = count;
         this.name = name;
         this.video = video;
         this.customAlbum = customAlbum;
+        if (customAlbum || ALBUM_ALL_ID.equals(id))
+            this.coverUri = Uri.parse(coverMimeType);
+        else
+            this.coverUri = ContentUriUtil.getPath(coverMimeType, coverId);
     }
 
     protected Album(Parcel in) {
@@ -168,7 +182,7 @@ public class Album implements Parcelable {
     }
 
     public String getCoverPath() {
-        return coverMimeType;
+        return coverUri.toString();
     }
 
     public boolean isCustomAlbum() {

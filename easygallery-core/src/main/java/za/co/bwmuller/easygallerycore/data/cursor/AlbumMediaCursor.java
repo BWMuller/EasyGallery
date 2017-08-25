@@ -36,10 +36,22 @@ import za.co.bwmuller.easygallerycore.model.Media;
  * Load images and videos into a single cursor.
  */
 public class AlbumMediaCursor extends CursorLoader {
+    public static final String COLUMN_URL = "custom_url";
     private static final Uri QUERY_URI = MediaStore.Files.getContentUri("external");
-    private static final String[] PROJECTION = {
+    private static final String[] COLUMNS = {
+            MediaStore.Images.Media.BUCKET_ID,
             MediaStore.Files.FileColumns._ID,
             MediaStore.MediaColumns.DISPLAY_NAME,
+            COLUMN_URL,
+            MediaStore.MediaColumns.MIME_TYPE,
+            MediaStore.MediaColumns.SIZE,
+            MediaStore.Video.VideoColumns.DURATION,
+            MediaStore.Images.Media.DATE_TAKEN};
+    private static final String[] PROJECTION = {
+            MediaStore.Images.Media.BUCKET_ID,
+            MediaStore.Files.FileColumns._ID,
+            MediaStore.MediaColumns.DISPLAY_NAME,
+            "'' AS " + COLUMN_URL,
             MediaStore.MediaColumns.MIME_TYPE,
             MediaStore.MediaColumns.SIZE,
             MediaStore.Video.VideoColumns.DURATION,
@@ -85,39 +97,58 @@ public class AlbumMediaCursor extends CursorLoader {
     // ===============================================================
     private final boolean mIsAll;
     private final Config mConfig;
+    private final Album mAlbum;
 
-    private AlbumMediaCursor(Context context, String selection, String[] selectionArgs, boolean isAll, Config config) {
+    private AlbumMediaCursor(Context context, String selection, String[] selectionArgs, boolean isAll, Config config, Album album) {
         super(context, QUERY_URI, PROJECTION, selection, selectionArgs, ORDER_BY);
         mIsAll = isAll;
         mConfig = config;
+        mAlbum = album;
     }
     // ===============================================================
 
     @Override
     public Cursor loadInBackground() {
-        Cursor mediaCursor = super.loadInBackground();
-        if (mIsAll && mConfig.mediaLoader != null) {
+        if (mAlbum.isCustomAlbum()) {
             ArrayList<Media> mediaList = new ArrayList<>();
-            mediaList.addAll(mConfig.mediaLoader.allMedia());
+            mediaList.addAll(mConfig.mediaLoader.customAlbumMedia(mAlbum));
 
-            if (mediaCursor != null) {
-                while (mediaCursor.moveToNext()) {
-                    mediaList.add(Media.from(mediaCursor));
-                }
-            }
             Collections.sort(mediaList, new Comparator<Media>() {
                 @Override public int compare(Media o1, Media o2) {
                     return Math.min(Math.max(Double.compare(o2.getDateTaken(), o1.getDateTaken()), -1), 1);
                 }
             });
 
-            MatrixCursor sortedMedia = new MatrixCursor(PROJECTION);
+            MatrixCursor sortedMedia = new MatrixCursor(COLUMNS);
             for (Media media : mediaList) {
                 sortedMedia.addRow(media.toCursorData());
             }
             return sortedMedia;
+        } else {
+            Cursor mediaCursor = super.loadInBackground();
+            if (mIsAll && mConfig.mediaLoader != null) {
+                ArrayList<Media> mediaList = new ArrayList<>();
+                mediaList.addAll(mConfig.mediaLoader.allMedia());
+
+                if (mediaCursor != null) {
+                    while (mediaCursor.moveToNext()) {
+                        mediaList.add(Media.from(mediaCursor));
+                    }
+                }
+                Collections.sort(mediaList, new Comparator<Media>() {
+                    @Override public int compare(Media o1, Media o2) {
+                        return Math.min(Math.max(Double.compare(o2.getDateTaken(), o1.getDateTaken()), -1), 1);
+                    }
+                });
+
+                MatrixCursor sortedMedia = new MatrixCursor(COLUMNS);
+                for (Media media : mediaList) {
+                    sortedMedia.addRow(media.toCursorData());
+                }
+                return sortedMedia;
+            }
+            return mediaCursor;
         }
-        return mediaCursor;
     }
 
     @Override
@@ -144,7 +175,6 @@ public class AlbumMediaCursor extends CursorLoader {
     public static CursorLoader newInstance(Context context, Album album, Config config) {
         String selection;
         String[] selectionArgs;
-        boolean enableCapture = false;
 
         if (album.isAllMedia()) {
             if (config.loaderScope == Config.Scope.IMAGES) {
@@ -157,7 +187,6 @@ public class AlbumMediaCursor extends CursorLoader {
                 selection = SELECTION_ALL;
                 selectionArgs = SELECTION_ALL_ARGS;
             }
-            enableCapture = config.enableCameraCapture;
         } else {
             if (album.isCustomAlbum()) {
                 selection = SELECTION_ALL_FOR_CUSTOM_ALBUM;
@@ -176,6 +205,6 @@ public class AlbumMediaCursor extends CursorLoader {
                 selectionArgs = getSelectionAlbumArgs(album.getId());
             }
         }
-        return new AlbumMediaCursor(context, selection, selectionArgs, enableCapture, config);
+        return new AlbumMediaCursor(context, selection, selectionArgs, album.isAllMedia(), config, album);
     }
 }
