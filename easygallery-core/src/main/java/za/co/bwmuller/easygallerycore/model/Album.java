@@ -25,45 +25,57 @@ public class Album implements Parcelable {
             return new Album[size];
         }
     };
+    private String dbId;
     private String id;
     private Uri coverUri;
     private long count;
     private String name;
     private boolean video;
     private String coverMimeType;
+    private long coverId;
+    private long dateTaken;
+    private boolean customAlbum;
 
-    public Album(String id, String name, String coverMimeType, long coverId, long count) {
+    public Album(String dbId, String id, String name, String coverMimeType, long coverId, long dateTaken, long count) {
+        this(dbId, id, name, coverMimeType, coverId, dateTaken, count, true);
+    }
+
+    Album(String dbId, String id, String name, String coverMimeType, long coverId, long dateTaken, long count, boolean customAlbum) {
+        this.dbId = dbId;
         this.id = id;
         this.name = name;
         this.coverMimeType = coverMimeType;
+        this.coverId = coverId;
         this.coverUri = ContentUriUtil.getPath(coverMimeType, coverId);
+        this.dateTaken = dateTaken;
         this.count = count;
+        this.customAlbum = customAlbum;
     }
 
-    public Album(String id, String name, String coverMimeType, long coverId, long count, boolean video) {
+    public Album(String dbId, String id, String name, String coverMimeType, long coverId, long dateTaken, long count, boolean customAlbum, boolean video) {
+        this.dbId = dbId;
         this.id = id;
         this.coverMimeType = coverMimeType;
+        this.coverId = coverId;
         this.coverUri = ContentUriUtil.getPath(coverMimeType, coverId);
+        this.dateTaken = dateTaken;
         this.count = count;
         this.name = name;
         this.video = video;
-    }
-
-    public Album(String coverMimeType, long coverId, long count) {
-        this.id = ALBUM_ALL_ID;
-        this.name = "All Media";
-        this.coverMimeType = coverMimeType;
-        this.coverUri = ContentUriUtil.getPath(coverMimeType, coverId);
-        this.count = count;
+        this.customAlbum = customAlbum;
     }
 
     protected Album(Parcel in) {
+        this.dbId = in.readString();
         this.id = in.readString();
+        this.coverId = in.readLong();
         this.coverUri = in.readParcelable(Uri.class.getClassLoader());
+        this.dateTaken = in.readLong();
         this.count = in.readLong();
         this.name = in.readString();
         this.video = in.readByte() != 0;
         this.coverMimeType = in.readString();
+        this.customAlbum = in.readByte() != 0;
     }
 
     @Override public int describeContents() {
@@ -71,12 +83,16 @@ public class Album implements Parcelable {
     }
 
     @Override public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.dbId);
         dest.writeString(this.id);
+        dest.writeLong(this.coverId);
         dest.writeParcelable(this.coverUri, flags);
+        dest.writeLong(this.dateTaken);
         dest.writeLong(this.count);
         dest.writeString(this.name);
         dest.writeByte(this.video ? (byte) 1 : (byte) 0);
         dest.writeString(this.coverMimeType);
+        dest.writeByte(this.customAlbum ? (byte) 1 : (byte) 0);
     }
 
     public static String[] createAllAlbumEntry(String coverPath, long coverId, long dateTaken, int count) {
@@ -86,17 +102,21 @@ public class Album implements Parcelable {
                 "",
                 coverPath,
                 String.valueOf(dateTaken),
-                String.valueOf(count)
+                String.valueOf(count),
+                Boolean.FALSE.toString()
         };
     }
 
     public static Album from(Cursor cursor) {
         return new Album(
+                cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns._ID)),
                 cursor.getString(cursor.getColumnIndex(AlbumCursor.BUCKET_ID)),
                 cursor.getString(cursor.getColumnIndex(AlbumCursor.BUCKET_DISPLAY_NAME)),
                 cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA)),
                 cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns._ID)),
-                cursor.getLong(cursor.getColumnIndex(AlbumCursor.COLUMN_COUNT)));
+                cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)),
+                cursor.getLong(cursor.getColumnIndex(AlbumCursor.COLUMN_COUNT)),
+                Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(AlbumCursor.CUSTOM_ALBUM))));
     }
 
     public String getId() {
@@ -125,5 +145,33 @@ public class Album implements Parcelable {
 
     public String getDisplayName(Config mConfig) {
         return isAllMedia() ? (isVideo() ? mConfig.allVideos : mConfig.allImages) : getName();
+    }
+
+    public String[] toCursorData() {
+        return new String[]{
+                String.valueOf(coverId),
+                id,
+                name,
+                coverMimeType,
+                String.valueOf(dateTaken),
+                String.valueOf(count),
+                String.valueOf(customAlbum)
+        };
+    }
+
+    public long getDateTaken() {
+        return dateTaken;
+    }
+
+    public long getCoverId() {
+        return coverId;
+    }
+
+    public String getCoverPath() {
+        return coverMimeType;
+    }
+
+    public boolean isCustomAlbum() {
+        return customAlbum;
     }
 }

@@ -18,12 +18,19 @@ package za.co.bwmuller.easygallerycore.data.cursor;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.content.CursorLoader;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallerycore.model.Album;
+import za.co.bwmuller.easygallerycore.model.Media;
 
 /**
  * Load images and videos into a single cursor.
@@ -35,7 +42,8 @@ public class AlbumMediaCursor extends CursorLoader {
             MediaStore.MediaColumns.DISPLAY_NAME,
             MediaStore.MediaColumns.MIME_TYPE,
             MediaStore.MediaColumns.SIZE,
-            MediaStore.Video.VideoColumns.DURATION};
+            MediaStore.Video.VideoColumns.DURATION,
+            MediaStore.Images.Media.DATE_TAKEN};
 
     // === params for album ALL && showSingleMediaType: false ===
     private static final String SELECTION_ALL =
@@ -47,8 +55,13 @@ public class AlbumMediaCursor extends CursorLoader {
             String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
             String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO),
     };
+    private static final String[] SELECTION_NO_ARGS = {};
     // ===========================================================
 
+    // === album custom ===
+    private static final String SELECTION_ALL_FOR_CUSTOM_ALBUM =
+            MediaStore.MediaColumns.SIZE + "== 0"
+                    + " AND " + MediaStore.MediaColumns.SIZE + ">0";
     // === params for album ALL && showSingleMediaType: true ===
     private static final String SELECTION_ALL_FOR_SINGLE_MEDIA_TYPE =
             MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
@@ -70,23 +83,41 @@ public class AlbumMediaCursor extends CursorLoader {
                     + " AND " + MediaStore.MediaColumns.SIZE + ">0";
     private static final String ORDER_BY = MediaStore.Images.Media.DATE_TAKEN + " DESC";
     // ===============================================================
-    private final boolean mEnableCapture;
+    private final boolean mIsAll;
+    private final Config mConfig;
 
-    private AlbumMediaCursor(Context context, String selection, String[] selectionArgs, boolean capture) {
+    private AlbumMediaCursor(Context context, String selection, String[] selectionArgs, boolean isAll, Config config) {
         super(context, QUERY_URI, PROJECTION, selection, selectionArgs, ORDER_BY);
-        mEnableCapture = capture;
+        mIsAll = isAll;
+        mConfig = config;
     }
     // ===============================================================
 
     @Override
     public Cursor loadInBackground() {
-        Cursor result = super.loadInBackground();
-//        if (!mEnableCapture || !MediaStoreCompat.hasCameraFeature(getContext())) {
-        return result;
-//        }
-//        MatrixCursor dummy = new MatrixCursor(PROJECTION);
-//        dummy.addRow(new Object[]{Item.ITEM_ID_CAPTURE, Item.ITEM_DISPLAY_NAME_CAPTURE, "", 0, 0});
-//        return new MergeCursor(new Cursor[]{dummy, result});
+        Cursor mediaCursor = super.loadInBackground();
+        if (mIsAll && mConfig.mediaLoader != null) {
+            ArrayList<Media> mediaList = new ArrayList<>();
+            mediaList.addAll(mConfig.mediaLoader.allMedia());
+
+            if (mediaCursor != null) {
+                while (mediaCursor.moveToNext()) {
+                    mediaList.add(Media.from(mediaCursor));
+                }
+            }
+            Collections.sort(mediaList, new Comparator<Media>() {
+                @Override public int compare(Media o1, Media o2) {
+                    return Math.min(Math.max(Double.compare(o2.getDateTaken(), o1.getDateTaken()), -1), 1);
+                }
+            });
+
+            MatrixCursor sortedMedia = new MatrixCursor(PROJECTION);
+            for (Media media : mediaList) {
+                sortedMedia.addRow(media.toCursorData());
+            }
+            return sortedMedia;
+        }
+        return mediaCursor;
     }
 
     @Override
@@ -128,7 +159,11 @@ public class AlbumMediaCursor extends CursorLoader {
             }
             enableCapture = config.enableCameraCapture;
         } else {
-            if (config.loaderScope == Config.Scope.IMAGES) {
+            if (album.isCustomAlbum()) {
+                selection = SELECTION_ALL_FOR_CUSTOM_ALBUM;
+                selectionArgs = SELECTION_NO_ARGS;
+                Toast.makeText(context, "Custom album", Toast.LENGTH_SHORT).show();
+            } else if (config.loaderScope == Config.Scope.IMAGES) {
                 selection = SELECTION_ALBUM_FOR_SINGLE_MEDIA_TYPE;
                 selectionArgs = getSelectionAlbumArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE,
                         album.getId());
@@ -141,6 +176,6 @@ public class AlbumMediaCursor extends CursorLoader {
                 selectionArgs = getSelectionAlbumArgs(album.getId());
             }
         }
-        return new AlbumMediaCursor(context, selection, selectionArgs, enableCapture);
+        return new AlbumMediaCursor(context, selection, selectionArgs, enableCapture, config);
     }
 }
