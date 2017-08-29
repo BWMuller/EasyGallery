@@ -6,7 +6,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -34,7 +36,7 @@ public class MediaAdapter extends RecyclerViewCursorAdapter<MediaAdapter.ViewHol
         mImageSize = recyclerView.getResources().getDisplayMetrics().widthPixels / listener.getConfig().mediaGridColumnCount;
     }
 
-    @Override protected void onBindViewHolder(ViewHolder holder, Cursor cursor) {
+    @Override protected void onBindViewHolder(ViewHolder holder, Cursor cursor, int position) {
         holder.populate(Media.from(cursor));
 //        mediaViewHolder.mMediaGrid.bindMedia(item);
 //        mediaViewHolder.mMediaGrid.setOnMediaGridClickListener(this);
@@ -81,8 +83,9 @@ public class MediaAdapter extends RecyclerViewCursorAdapter<MediaAdapter.ViewHol
 //            mNameTextView = (TextView) view.findViewById(R.id.album_item_name);
 //            mCountTextView = (TextView) view.findViewById(R.id.album_item_count);
         }
-
+        Media mItem;
         void populate(Media item) {
+            this.mItem = item;
             mSimpleDrawee.setController(Fresco.newDraweeControllerBuilder()
                     .setOldController(mSimpleDrawee.getController())
                     .setLowResImageRequest(ImageRequestBuilder.newBuilderWithSource(item.getContentUri())
@@ -91,6 +94,11 @@ public class MediaAdapter extends RecyclerViewCursorAdapter<MediaAdapter.ViewHol
                             .setProgressiveRenderingEnabled(true)
                             .build())
                     .build());
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    Toast.makeText(v.getContext(), MimeTypeMap.getSingleton().getExtensionFromMimeType(v.getContext().getContentResolver().getType(mItem.getContentUri())), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 }

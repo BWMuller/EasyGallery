@@ -81,20 +81,6 @@ final class ExifInterfaceCompat {
     }
 
     /**
-     * Read exif info and get datetime value of the photo.
-     *
-     * @param filepath to get datetime
-     * @return when a photo taken.
-     */
-    public static long getExifDateTimeInMillis(String filepath) {
-        Date datetime = getExifDateTime(filepath);
-        if (datetime == null) {
-            return -1;
-        }
-        return datetime.getTime();
-    }
-
-    /**
      * Read exif info and get orientation value of the photo.
      *
      * @param filepath to get exif.

@@ -1,4 +1,4 @@
-package za.co.bwmuller.easygalleryexample;
+package za.co.bwmuller.easygallery;
 
 import android.content.Intent;
 import android.os.Bundle;

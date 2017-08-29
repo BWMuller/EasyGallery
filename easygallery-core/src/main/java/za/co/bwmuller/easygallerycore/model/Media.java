@@ -18,7 +18,6 @@ import za.co.bwmuller.easygallerycore.utils.ContentUriUtil;
 
 public class Media implements Parcelable {
     public static final long ITEM_ID_CAPTURE = -1;
-    public static final String ITEM_DISPLAY_NAME_CAPTURE = "Capture";
     public static final Parcelable.Creator<Media> CREATOR = new Parcelable.Creator<Media>() {
         @Override public Media createFromParcel(Parcel source) {
             return new Media(source);
@@ -56,7 +55,7 @@ public class Media implements Parcelable {
         this.custom = true;
         this.bucketId = bucketId;
         this.dbId = String.format(Locale.getDefault(), "custom_%s_%d", bucketId, id);
-        this.id = id;
+        this.id = dbId.hashCode();
         this.displayName = displayName;
         this.mimeType = mimeType;
         this.uri = uri;
@@ -65,18 +64,19 @@ public class Media implements Parcelable {
         this.dateTaken = dateTaken;
     }
 
-    private Media(String bucketId, long id, String displayName, String mimeType, String uri, long size, long duration, long dateTaken) {
+    public Media(String bucketId, long id, String dbId, String displayName, String mimeType, String uri, long size, long duration, long dateTaken) {
         this.bucketId = bucketId;
         if (TextUtils.isEmpty(uri)) {
             this.custom = false;
             this.dbId = String.valueOf(id);
             this.uri = ContentUriUtil.getPath(mimeType, id);
+            this.id = id;
         } else {
             this.custom = true;
-            this.dbId = String.format(Locale.getDefault(), "custom_%s_%d", bucketId, id);
+            this.dbId = dbId;
             this.uri = Uri.parse(uri);
+            this.id = dbId.hashCode();
         }
-        this.id = id;
         this.displayName = displayName;
         this.mimeType = mimeType;
         this.size = size;
@@ -116,12 +116,12 @@ public class Media implements Parcelable {
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + bucketId.hashCode();
-        result = 31 * result + dbId.hashCode();
+        result = 31 * result + (bucketId + "").hashCode();
+        result = 31 * result + (dbId + "").hashCode();
         result = 31 * result + Long.valueOf(id).hashCode();
-        result = 31 * result + displayName.hashCode();
-        result = 31 * result + mimeType.hashCode();
-        result = 31 * result + uri.hashCode();
+        result = 31 * result + (displayName + "").hashCode();
+        result = 31 * result + (mimeType + "").hashCode();
+        result = 31 * result + (uri + "").hashCode();
         result = 31 * result + Long.valueOf(size).hashCode();
         result = 31 * result + Long.valueOf(duration).hashCode();
         result = 31 * result + Long.valueOf(dateTaken).hashCode();
@@ -154,6 +154,7 @@ public class Media implements Parcelable {
     public static Media from(Cursor cursor) {
         return new Media(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID)),
                 cursor.getLong(cursor.getColumnIndex(MediaStore.Files.FileColumns._ID)),
+                cursor.getString(cursor.getColumnIndex(AlbumMediaCursor.CUSTOM_ID)),
                 cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)),
                 cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE)),
                 cursor.getString(cursor.getColumnIndex(AlbumMediaCursor.COLUMN_URL)),
@@ -162,8 +163,24 @@ public class Media implements Parcelable {
                 cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)));
     }
 
+    public static Builder newBuilder(long bucketId) {
+        return new Builder(String.valueOf(bucketId));
+    }
+
     public static Builder newBuilder(String bucketId) {
         return new Builder(bucketId);
+    }
+
+    public String getDbId() {
+        return dbId;
+    }
+
+    public long getCustomId() {
+        return (getDbId().startsWith("custom")) ? Long.valueOf(getDbId().substring(String.format(Locale.getDefault(), "custom_%s_", bucketId).length())) : getId();
+    }
+
+    public long getId() {
+        return id;
     }
 
     public Uri getContentUri() {
@@ -182,6 +199,7 @@ public class Media implements Parcelable {
         return new String[]{
                 String.valueOf(bucketId),
                 String.valueOf(id),
+                String.valueOf(dbId),
                 displayName,
                 custom ? uri.toString() : "",
                 mimeType,
@@ -189,6 +207,10 @@ public class Media implements Parcelable {
                 String.valueOf(duration),
                 String.valueOf(dateTaken)
         };
+    }
+
+    public String getBucketId() {
+        return bucketId;
     }
 
     public static class Builder {

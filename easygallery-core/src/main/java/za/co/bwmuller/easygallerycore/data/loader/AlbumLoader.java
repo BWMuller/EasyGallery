@@ -16,7 +16,6 @@ import za.co.bwmuller.easygallerycore.data.cursor.AlbumCursor;
  */
 
 public class AlbumLoader implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final int LOADER_ID = AlbumLoader.class.getSimpleName().hashCode();
     private WeakReference<Context> mContext;
     private LoaderManager mLoaderManager;
     private AlbumCallback mAlbumCallback;
@@ -54,12 +53,16 @@ public class AlbumLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     }
 
     public void onDestroy() {
-        mLoaderManager.destroyLoader(LOADER_ID);
+        mLoaderManager.destroyLoader(getLoaderId());
         mAlbumCallback = null;
     }
 
+    private int getLoaderId() {
+        return AlbumLoader.class.getSimpleName().hashCode() + mAlbumCallback.getConfig().loaderScope.ordinal();
+    }
+
     public void loadAlbums() {
-        mLoaderManager.initLoader(LOADER_ID, null, this);
+        mLoaderManager.initLoader(getLoaderId(), null, this);
     }
 
 //    public int getCurrentSelection() {

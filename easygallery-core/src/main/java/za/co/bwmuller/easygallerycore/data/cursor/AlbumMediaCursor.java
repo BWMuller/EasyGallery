@@ -22,7 +22,7 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.content.CursorLoader;
-import android.widget.Toast;
+import android.webkit.MimeTypeMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,10 +37,12 @@ import za.co.bwmuller.easygallerycore.model.Media;
  */
 public class AlbumMediaCursor extends CursorLoader {
     public static final String COLUMN_URL = "custom_url";
+    public static final String CUSTOM_ID = "custom_id";
     private static final Uri QUERY_URI = MediaStore.Files.getContentUri("external");
     private static final String[] COLUMNS = {
             MediaStore.Images.Media.BUCKET_ID,
             MediaStore.Files.FileColumns._ID,
+            CUSTOM_ID,
             MediaStore.MediaColumns.DISPLAY_NAME,
             COLUMN_URL,
             MediaStore.MediaColumns.MIME_TYPE,
@@ -50,6 +52,7 @@ public class AlbumMediaCursor extends CursorLoader {
     private static final String[] PROJECTION = {
             MediaStore.Images.Media.BUCKET_ID,
             MediaStore.Files.FileColumns._ID,
+            "'' AS " + CUSTOM_ID,
             MediaStore.MediaColumns.DISPLAY_NAME,
             "'' AS " + COLUMN_URL,
             MediaStore.MediaColumns.MIME_TYPE,
@@ -75,24 +78,35 @@ public class AlbumMediaCursor extends CursorLoader {
             MediaStore.MediaColumns.SIZE + "== 0"
                     + " AND " + MediaStore.MediaColumns.SIZE + ">0";
     // === params for album ALL && showSingleMediaType: true ===
-    private static final String SELECTION_ALL_FOR_SINGLE_MEDIA_TYPE =
+    private static final String SELECTION_ALL_FOR_IMAGE_MEDIA_TYPE = " ( "
+            + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
+            + " AND NOT " + MediaStore.Images.Media.MIME_TYPE + "=?"
+            + " ) AND " + MediaStore.MediaColumns.SIZE + ">0";
+
+
+    private static final String SELECTION_ALL_FOR_VIDEO_MEDIA_TYPE =
             MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
                     + " AND " + MediaStore.MediaColumns.SIZE + ">0";
+
     // === params for ordinary album && showSingleMediaType: false ===
-    private static final String SELECTION_ALBUM =
-            "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
-                    + " OR "
-                    + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?)"
-                    + " AND "
-                    + " " + AlbumCursor.BUCKET_ID + "=?"
-                    + " AND " + MediaStore.MediaColumns.SIZE + ">0";
+    private static final String SELECTION_ALBUM = "("
+            + " ( " + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
+            + " AND NOT " + MediaStore.Images.Media.MIME_TYPE + "=?)"
+            + " OR "
+            + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?)"
+            + " AND "
+            + " " + AlbumCursor.BUCKET_ID + "=?"
+            + " AND " + MediaStore.MediaColumns.SIZE + ">0";
     // =========================================================
     // === params for ordinary album && showSingleMediaType: true ===
-    private static final String SELECTION_ALBUM_FOR_SINGLE_MEDIA_TYPE =
-            MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
-                    + " AND "
-                    + " " + AlbumCursor.BUCKET_ID + "=?"
-                    + " AND " + MediaStore.MediaColumns.SIZE + ">0";
+    private static final String SELECTION_ALBUM_FOR_IMAGE_MEDIA_TYPE =
+            SELECTION_ALL_FOR_IMAGE_MEDIA_TYPE
+                    + " AND " + AlbumCursor.BUCKET_ID + "=?";
+
+
+    private static final String SELECTION_ALBUM_FOR_VIDEO_MEDIA_TYPE =
+            SELECTION_ALL_FOR_VIDEO_MEDIA_TYPE
+                    + " AND " + AlbumCursor.BUCKET_ID + "=?";
     private static final String ORDER_BY = MediaStore.Images.Media.DATE_TAKEN + " DESC";
     // ===============================================================
     private final boolean mIsAll;
@@ -157,19 +171,35 @@ public class AlbumMediaCursor extends CursorLoader {
     }
 
     private static String[] getSelectionArgsForSingleMediaType(int mediaType) {
-        return new String[]{String.valueOf(mediaType)};
+        if (MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE == mediaType) {
+            return new String[]{
+                    String.valueOf(mediaType),
+                    MimeTypeMap.getSingleton().getMimeTypeFromExtension("gif"),
+            };
+        } else {
+            return new String[]{String.valueOf(mediaType)};
+        }
     }
 
     private static String[] getSelectionAlbumArgs(String albumId) {
         return new String[]{
                 String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
+                MimeTypeMap.getSingleton().getMimeTypeFromExtension("gif"),
                 String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO),
                 albumId
         };
     }
 
     private static String[] getSelectionAlbumArgsForSingleMediaType(int mediaType, String albumId) {
-        return new String[]{String.valueOf(mediaType), albumId};
+        if (MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE == mediaType) {
+            return new String[]{
+                    String.valueOf(mediaType),
+                    MimeTypeMap.getSingleton().getMimeTypeFromExtension("gif"),
+                    albumId
+            };
+        } else {
+            return new String[]{String.valueOf(mediaType), albumId};
+        }
     }
 
     public static CursorLoader newInstance(Context context, Album album, Config config) {
@@ -178,10 +208,10 @@ public class AlbumMediaCursor extends CursorLoader {
 
         if (album.isAllMedia()) {
             if (config.loaderScope == Config.Scope.IMAGES) {
-                selection = SELECTION_ALL_FOR_SINGLE_MEDIA_TYPE;
+                selection = SELECTION_ALL_FOR_IMAGE_MEDIA_TYPE;
                 selectionArgs = getSelectionArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
             } else if (config.loaderScope == Config.Scope.VIDEOS) {
-                selection = SELECTION_ALL_FOR_SINGLE_MEDIA_TYPE;
+                selection = SELECTION_ALL_FOR_VIDEO_MEDIA_TYPE;
                 selectionArgs = getSelectionArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
             } else {
                 selection = SELECTION_ALL;
@@ -191,19 +221,26 @@ public class AlbumMediaCursor extends CursorLoader {
             if (album.isCustomAlbum()) {
                 selection = SELECTION_ALL_FOR_CUSTOM_ALBUM;
                 selectionArgs = SELECTION_NO_ARGS;
-                Toast.makeText(context, "Custom album", Toast.LENGTH_SHORT).show();
             } else if (config.loaderScope == Config.Scope.IMAGES) {
-                selection = SELECTION_ALBUM_FOR_SINGLE_MEDIA_TYPE;
+                selection = SELECTION_ALBUM_FOR_IMAGE_MEDIA_TYPE;
                 selectionArgs = getSelectionAlbumArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE,
                         album.getId());
             } else if (config.loaderScope == Config.Scope.VIDEOS) {
-                selection = SELECTION_ALBUM_FOR_SINGLE_MEDIA_TYPE;
+                selection = SELECTION_ALBUM_FOR_VIDEO_MEDIA_TYPE;
                 selectionArgs = getSelectionAlbumArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO,
                         album.getId());
             } else {
                 selection = SELECTION_ALBUM;
                 selectionArgs = getSelectionAlbumArgs(album.getId());
             }
+        }
+
+        if (!config.excludeDirectories.isEmpty()) {
+            String tmp = "";
+            for (String excludeDirectory : config.excludeDirectories) {
+                tmp += (tmp.isEmpty() ? "" : " AND ") + MediaStore.Images.Media.DATA + " not like '%" + excludeDirectory + "%' ";
+            }
+            selection = " ( " + tmp + " ) AND " + selection;
         }
         return new AlbumMediaCursor(context, selection, selectionArgs, album.isAllMedia(), config, album);
     }

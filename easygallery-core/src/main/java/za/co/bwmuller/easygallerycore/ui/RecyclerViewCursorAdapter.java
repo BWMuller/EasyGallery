@@ -15,7 +15,7 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
         swapCursor(c);
     }
 
-    protected abstract void onBindViewHolder(VH holder, Cursor cursor);
+    protected abstract void onBindViewHolder(VH holder, Cursor cursor, int position);
 
     @Override
     public void onBindViewHolder(VH holder, int position) {
@@ -27,7 +27,7 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
                     + " when trying to bind view holder");
         }
 
-        onBindViewHolder(holder, mCursor);
+        onBindViewHolder(holder, mCursor, position);
     }
 
     @Override

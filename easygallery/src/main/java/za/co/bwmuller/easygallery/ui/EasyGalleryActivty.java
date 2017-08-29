@@ -14,14 +14,14 @@ import za.co.bwmuller.easygallery.R;
 import za.co.bwmuller.easygallery.ui.album.AlbumFragment;
 import za.co.bwmuller.easygallery.ui.media.MediaFragment;
 import za.co.bwmuller.easygallerycore.Config;
-import za.co.bwmuller.easygallerycore.data.custom.AlbumLoader;
-import za.co.bwmuller.easygallerycore.data.custom.MediaLoader;
+import za.co.bwmuller.easygallerycore.data.custom.AlbumLoaderCallback;
+import za.co.bwmuller.easygallerycore.data.custom.MediaLoaderCallback;
 import za.co.bwmuller.easygallerycore.model.Album;
 import za.co.bwmuller.easygallerycore.model.Media;
 
 public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragment.OnAlbumFragmentListener, MediaFragment.OnMediaFragmentListener {
-    private static int MEDIA_COUNT = 5000;
-    private static int ALBUM_COUNT = 20;
+    private static int MEDIA_COUNT = 2000;
+    private static int ALBUM_COUNT = 10;
     HashMap<String, ArrayList<Media>> albumMediaMap;
 
     @Override public Config getConfig() {
@@ -29,12 +29,12 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
             mediaGridColumnCount = 3;
             albumGridColumnCount = 2;
             loaderScope = Scope.IMAGES;
-        }}.addExcludedDirectory("/Kalido/")
-                .setCustomAlbum(new AlbumLoader() {
+        }}.addExcludedDirectory("/Camera/")
+                .setCustomAlbum(new AlbumLoaderCallback() {
                     @Override public ArrayList<Album> prefixAlbums() {
                         ArrayList<Album> albums = new ArrayList<Album>();
                         Media media = getAlbumMedia().get("-2").get(0);
-                        albums.add(new Album("-2", "-2", "Profile Images", media.getContentUri().toString(), media.getDateTaken(), getAlbumMedia().get("-2").size()));
+                        albums.add(new Album("-2", "-2", "First Images", media.getContentUri().toString(), media.getDateTaken(), getAlbumMedia().get("-2").size()));
                         return albums;
                     }
 
@@ -42,12 +42,12 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
                         ArrayList<Album> albums = new ArrayList<Album>();
                         for (String key : getAlbumMedia().keySet()) {
                             Media media = getAlbumMedia().get(key).get(0);
-                            albums.add(new Album(key, key, "Chat with " + key, media.getContentUri().toString(), media.getDateTaken(), getAlbumMedia().get(key).size()));
+                            albums.add(new Album(key, key, "Other " + key, media.getContentUri().toString(), media.getDateTaken(), getAlbumMedia().get(key).size()));
                         }
                         return albums;
                     }
                 })
-                .setCustomMedia(new MediaLoader() {
+                .setCustomMedia(new MediaLoaderCallback() {
                     @Override public ArrayList<Media> allMedia() {
                         ArrayList<Media> media = new ArrayList<Media>();
                         for (String key : getAlbumMedia().keySet()) {

@@ -22,6 +22,7 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.content.CursorLoader;
+import android.webkit.MimeTypeMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.Comparator;
 
 import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallerycore.model.Album;
+import za.co.bwmuller.easygallerycore.utils.MimeType;
 
 /**
  * Load all albums (grouped by bucket_id) into a single cursor.
@@ -59,20 +61,28 @@ public class AlbumCursor extends CursorLoader {
             "0 > 0 AS " + CUSTOM_ALBUM};
 
     // === params for showSingleMediaType: false ===
-    private static final String SELECTION =
-            "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
-                    + " OR "
-                    + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?)"
-                    + " AND " + MediaStore.MediaColumns.SIZE + ">0"
-                    + ") GROUP BY (" + BUCKET_ID;
+    private static final String SELECTION = " ( "
+            + " ( " + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
+            + " AND NOT " + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?)"
+            + " OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?)"
+            + " AND " + MediaStore.MediaColumns.SIZE + ">0"
+            + ") GROUP BY (" + BUCKET_ID;
     private static final String[] SELECTION_ARGS = {
             String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension("gif"),
             String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO),
     };
     // =============================================
 
     // === params for showSingleMediaType: true ===
-    private static final String SELECTION_FOR_SINGLE_MEDIA_TYPE =
+    private static final String SELECTION_FOR_IMAGE_MEDIA_TYPE = " ( "
+            + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
+            + " AND NOT " + MediaStore.Images.Media.MIME_TYPE + "=?"
+            + " ) AND " + MediaStore.MediaColumns.SIZE + ">0"
+            + ") GROUP BY (" + BUCKET_ID;
+
+
+    private static final String SELECTION_FOR_VIDEO_MEDIA_TYPE =
             MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
                     + " AND " + MediaStore.MediaColumns.SIZE + ">0"
                     + ") GROUP BY (" + BUCKET_ID;
@@ -166,17 +176,24 @@ public class AlbumCursor extends CursorLoader {
     }
 
     private static String[] getSelectionArgsForSingleMediaType(int mediaType) {
-        return new String[]{String.valueOf(mediaType)};
+        if (MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE == mediaType) {
+            return new String[]{
+                    String.valueOf(mediaType),
+                    MimeTypeMap.getSingleton().getMimeTypeFromExtension("gif"),
+            };
+        } else {
+            return new String[]{String.valueOf(mediaType)};
+        }
     }
 
     public static CursorLoader newInstance(Context context, Config config) {
         String selection;
         String[] selectionArgs;
         if (config.loaderScope == Config.Scope.IMAGES) {
-            selection = SELECTION_FOR_SINGLE_MEDIA_TYPE;
+            selection = SELECTION_FOR_IMAGE_MEDIA_TYPE;
             selectionArgs = getSelectionArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
         } else if (config.loaderScope == Config.Scope.VIDEOS) {
-            selection = SELECTION_FOR_SINGLE_MEDIA_TYPE;
+            selection = SELECTION_FOR_VIDEO_MEDIA_TYPE;
             selectionArgs = getSelectionArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
         } else {
             selection = SELECTION;

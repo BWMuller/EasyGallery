@@ -19,11 +19,11 @@ import za.co.bwmuller.easygallerycore.model.Album;
  */
 
 public class AlbumMediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final int LOADER_ID = 2;
     private static final String ARGS_ALBUM = "args_album";
     private WeakReference<Context> mContext;
     private LoaderManager mLoaderManager;
     private AlbumCallback mCallbacks;
+    private int LOADER_ID = 2;
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -60,6 +60,10 @@ public class AlbumMediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         mCallbacks.onCursorReset();
     }
 
+    private int getLoaderId(String albumId) {
+        return AlbumMediaLoader.class.getSimpleName().hashCode() + mCallbacks.getConfig().loaderScope.ordinal() + albumId.hashCode();
+    }
+
     public void onCreate(@NonNull FragmentActivity activity, @NonNull AlbumCallback callbacks) {
         mContext = new WeakReference<Context>(activity);
         mLoaderManager = activity.getSupportLoaderManager();
@@ -74,6 +78,7 @@ public class AlbumMediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     public void load(@Nullable Album target) {
         Bundle args = new Bundle();
         args.putParcelable(ARGS_ALBUM, target);
+        LOADER_ID = getLoaderId(target.getId());
         mLoaderManager.initLoader(LOADER_ID, args, this);
     }
 }

@@ -35,7 +35,7 @@ public class AlbumAdapter extends RecyclerViewCursorAdapter<AlbumAdapter.ViewHol
         mImageSize = recyclerView.getResources().getDisplayMetrics().widthPixels / listener.getConfig().albumGridColumnCount;
     }
 
-    @Override protected void onBindViewHolder(ViewHolder holder, Cursor cursor) {
+    @Override protected void onBindViewHolder(ViewHolder holder, Cursor cursor, int position) {
         Album item = Album.from(cursor);
         holder.populate(item, mListener.getConfig());
         holder.mView.setOnClickListener(new ItemViewClickListener<Album>(item) {

@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/EasyGallery.iml" filepath="$PROJECT_DIR$/EasyGallery.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/easygallery/easygallery.iml" filepath="$PROJECT_DIR$/easygallery/easygallery.iml" />
       <module fileurl="file://$PROJECT_DIR$/easygallery-core/easygallery-core.iml" filepath="$PROJECT_DIR$/easygallery-core/easygallery-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/easypermissions/easypermissions.iml" filepath="$PROJECT_DIR$/easypermissions/easypermissions.iml" />
