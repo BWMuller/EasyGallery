@@ -7,12 +7,15 @@ without having to figure out how to effectively read the device media and query 
 Gradle:
 
 ```groovy
-repositories {
-    maven { url "https://jitpack.io" }
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
 }
 
 dependencies {
-    compile 'za.co.bwmuller:easygallery-core:0.0.1'
+        compile 'com.github.BWMuller.EasyGallery:easygallery-core:v0.0.1'
 }
 ```
 
