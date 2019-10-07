@@ -2,12 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'checkstyle'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
-        minSdkVersion 11
-        targetSdkVersion 25
+        minSdkVersion 17
+        targetSdkVersion 28
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -24,12 +24,12 @@ android {
     }
 }
 
-ext.supportLibVersion = '25.3.1'
+ext.supportLibVersion = '28.0.0'
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile "com.android.support:support-v4:${supportLibVersion}"
-    compile "com.android.support:appcompat-v7:${supportLibVersion}"
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation "com.android.support:support-v4:${supportLibVersion}"
+    implementation "com.android.support:appcompat-v7:${supportLibVersion}"
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
 }
