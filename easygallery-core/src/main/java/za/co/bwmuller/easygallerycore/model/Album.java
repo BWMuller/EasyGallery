@@ -130,7 +130,7 @@ public class Album implements Parcelable {
                 cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns._ID)),
                 cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)),
                 cursor.getLong(cursor.getColumnIndex(AlbumCursor.COLUMN_COUNT)),
-                Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(AlbumCursor.CUSTOM_ALBUM))));
+                cursor.getColumnIndex(AlbumCursor.CUSTOM_ALBUM) >= 0 && Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(AlbumCursor.CUSTOM_ALBUM))));
     }
 
     public String getId() {

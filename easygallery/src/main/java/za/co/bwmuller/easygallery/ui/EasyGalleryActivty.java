@@ -34,7 +34,7 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
                     @Override public ArrayList<Album> prefixAlbums() {
                         ArrayList<Album> albums = new ArrayList<Album>();
                         Media media = getAlbumMedia().get("-2").get(0);
-                        albums.add(new Album("-2", "-2", "First Images", media.getContentUri().toString(), media.getDateTaken(), getAlbumMedia().get("-2").size()));
+                        albums.add(Album.createCustom("-2", "First Images", media.getContentUri(), media.getDateTaken(), getAlbumMedia().get("-2").size()));
                         return albums;
                     }
 
@@ -42,7 +42,7 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
                         ArrayList<Album> albums = new ArrayList<Album>();
                         for (String key : getAlbumMedia().keySet()) {
                             Media media = getAlbumMedia().get(key).get(0);
-                            albums.add(new Album(key, key, "Other " + key, media.getContentUri().toString(), media.getDateTaken(), getAlbumMedia().get(key).size()));
+                            albums.add(Album.createCustom(key, "Other " + key, media.getContentUri(), media.getDateTaken(), getAlbumMedia().get(key).size()));
                         }
                         return albums;
                     }

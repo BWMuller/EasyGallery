@@ -57,8 +57,7 @@ public class AlbumCursor extends CursorLoader {
             BUCKET_DISPLAY_NAME,
             MediaStore.MediaColumns.DATA,
             MediaStore.Images.Media.DATE_TAKEN,
-            "COUNT(*) AS " + COLUMN_COUNT,
-            "0 > 0 AS " + CUSTOM_ALBUM};
+            "COUNT(*) AS " + COLUMN_COUNT};
 
     // === params for showSingleMediaType: false ===
     private static final String SELECTION = " ( "
