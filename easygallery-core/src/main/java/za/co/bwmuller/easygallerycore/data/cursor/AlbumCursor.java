@@ -21,7 +21,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v4.content.CursorLoader;
+import androidx.loader.content.CursorLoader;
 import android.webkit.MimeTypeMap;
 
 import java.util.ArrayList;
@@ -30,7 +30,6 @@ import java.util.Comparator;
 
 import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallerycore.model.Album;
-import za.co.bwmuller.easygallerycore.utils.MimeType;
 
 /**
  * Load all albums (grouped by bucket_id) into a single cursor.
