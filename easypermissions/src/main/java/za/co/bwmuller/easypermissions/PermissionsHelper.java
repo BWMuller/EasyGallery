@@ -6,9 +6,10 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.annotation.StringDef;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringDef;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,7 +35,7 @@ public class PermissionsHelper extends PermissionListener {
     public static final String K_READ_SMS = Manifest.permission.READ_SMS;
     private static ArrayList<PermissionRequest> permissionRequests = new ArrayList<>();
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         PermissionRequest requestResult = new PermissionRequest(requestCode);
         if (permissionRequests.contains(requestResult)) {
             PermissionRequest permissionRequest = permissionRequests.get(permissionRequests.indexOf(requestResult));
