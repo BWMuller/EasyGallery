@@ -163,6 +163,18 @@ public class Media implements Parcelable {
                 cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)));
     }
 
+    public static Media fromDevice(Cursor cursor) {
+        return new Media(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID)),
+                cursor.getLong(cursor.getColumnIndex(MediaStore.Files.FileColumns._ID)),
+                "",
+                cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)),
+                cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE)),
+                "",
+                cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns.SIZE)),
+                cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.DURATION)),
+                cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)));
+    }
+
     public static Builder newBuilder(long bucketId) {
         return new Builder(String.valueOf(bucketId));
     }

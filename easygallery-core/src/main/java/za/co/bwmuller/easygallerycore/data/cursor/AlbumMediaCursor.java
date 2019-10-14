@@ -52,9 +52,7 @@ public class AlbumMediaCursor extends CursorLoader {
     private static final String[] PROJECTION = {
             MediaStore.Images.Media.BUCKET_ID,
             MediaStore.Files.FileColumns._ID,
-            "'' AS " + CUSTOM_ID,
             MediaStore.MediaColumns.DISPLAY_NAME,
-            "'' AS " + COLUMN_URL,
             MediaStore.MediaColumns.MIME_TYPE,
             MediaStore.MediaColumns.SIZE,
             MediaStore.Video.VideoColumns.DURATION,
@@ -140,28 +138,27 @@ public class AlbumMediaCursor extends CursorLoader {
             return sortedMedia;
         } else {
             Cursor mediaCursor = super.loadInBackground();
+            ArrayList<Media> mediaList = new ArrayList<>();
             if (mIsAll && mConfig.mediaLoader != null) {
-                ArrayList<Media> mediaList = new ArrayList<>();
                 mediaList.addAll(mConfig.mediaLoader.allMedia());
-
-                if (mediaCursor != null) {
-                    while (mediaCursor.moveToNext()) {
-                        mediaList.add(Media.from(mediaCursor));
-                    }
-                }
-                Collections.sort(mediaList, new Comparator<Media>() {
-                    @Override public int compare(Media o1, Media o2) {
-                        return Math.min(Math.max(Double.compare(o2.getDateTaken(), o1.getDateTaken()), -1), 1);
-                    }
-                });
-
-                MatrixCursor sortedMedia = new MatrixCursor(COLUMNS);
-                for (Media media : mediaList) {
-                    sortedMedia.addRow(media.toCursorData());
-                }
-                return sortedMedia;
             }
-            return mediaCursor;
+            if (mediaCursor != null) {
+                while (mediaCursor.moveToNext()) {
+                    mediaList.add(Media.fromDevice(mediaCursor));
+                }
+            }
+            Collections.sort(mediaList, new Comparator<Media>() {
+                @Override
+                public int compare(Media o1, Media o2) {
+                    return Math.min(Math.max(Double.compare(o2.getDateTaken(), o1.getDateTaken()), -1), 1);
+                }
+            });
+
+            MatrixCursor sortedMedia = new MatrixCursor(COLUMNS);
+            for (Media media : mediaList) {
+                sortedMedia.addRow(media.toCursorData());
+            }
+            return sortedMedia;
         }
     }
 
