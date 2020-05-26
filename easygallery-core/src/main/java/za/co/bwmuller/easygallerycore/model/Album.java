@@ -189,6 +189,10 @@ public class Album implements Parcelable {
         return customAlbum;
     }
 
+    public void addCount() {
+        count++;
+    }
+
     public static Album createCustom(String id, String displayName, Uri contentUri, long dateTaken, int mediaCount) {
         return new Album(id, id, displayName, contentUri.toString(), dateTaken, mediaCount);
     }

@@ -21,13 +21,12 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import androidx.loader.content.CursorLoader;
 import android.webkit.MimeTypeMap;
-
+import androidx.loader.content.CursorLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-
+import java.util.HashMap;
 import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallerycore.model.Album;
 
@@ -35,13 +34,19 @@ import za.co.bwmuller.easygallerycore.model.Album;
  * Load all albums (grouped by bucket_id) into a single cursor.
  */
 public class AlbumCursor extends CursorLoader {
+
     public static final String CUSTOM_ALBUM = "custom_album";
+
     public static final String COLUMN_COUNT = "count";
+
     public static final String BUCKET_ID = MediaStore.Images.Media.BUCKET_ID;
+
     public static final String BUCKET_DISPLAY_NAME = MediaStore.Images.Media.BUCKET_DISPLAY_NAME;
 
     private static final Uri QUERY_URI = MediaStore.Files.getContentUri("external");
+
     private static final String BUCKET_ORDER_BY = MediaStore.Images.Media.DATE_TAKEN + " DESC";
+
     private static final String[] COLUMNS = {
             MediaStore.Files.FileColumns._ID,
             BUCKET_ID,
@@ -50,21 +55,21 @@ public class AlbumCursor extends CursorLoader {
             MediaStore.Images.Media.DATE_TAKEN,
             COLUMN_COUNT,
             CUSTOM_ALBUM};
+
     private static final String[] PROJECTION = {
             MediaStore.Files.FileColumns._ID,
             BUCKET_ID,
             BUCKET_DISPLAY_NAME,
             MediaStore.MediaColumns.DATA,
-            MediaStore.Images.Media.DATE_TAKEN,
-            "COUNT(*) AS " + COLUMN_COUNT};
+            MediaStore.Images.Media.DATE_TAKEN};
 
     // === params for showSingleMediaType: false ===
     private static final String SELECTION = " ( "
             + " ( " + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
             + " AND NOT " + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?)"
             + " OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?)"
-            + " AND " + MediaStore.MediaColumns.SIZE + ">0"
-            + ") GROUP BY (" + BUCKET_ID;
+            + " AND " + MediaStore.MediaColumns.SIZE + ">0";
+
     private static final String[] SELECTION_ARGS = {
             String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
             MimeTypeMap.getSingleton().getMimeTypeFromExtension("gif"),
@@ -76,14 +81,13 @@ public class AlbumCursor extends CursorLoader {
     private static final String SELECTION_FOR_IMAGE_MEDIA_TYPE = " ( "
             + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
             + " AND NOT " + MediaStore.Images.Media.MIME_TYPE + "=?"
-            + " ) AND " + MediaStore.MediaColumns.SIZE + ">0"
-            + ") GROUP BY (" + BUCKET_ID;
+            + " ) AND " + MediaStore.MediaColumns.SIZE + ">0";
 
 
     private static final String SELECTION_FOR_VIDEO_MEDIA_TYPE =
             MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
-                    + " AND " + MediaStore.MediaColumns.SIZE + ">0"
-                    + ") GROUP BY (" + BUCKET_ID;
+                    + " AND " + MediaStore.MediaColumns.SIZE + ">0";
+
     // =============================================
     private Config mConfig;
 
@@ -100,13 +104,15 @@ public class AlbumCursor extends CursorLoader {
 
         if (mConfig.albumLoader != null) {
             ArrayList<Album> customAlbums = mConfig.albumLoader.prefixAlbums();
-            if (customAlbums != null && !customAlbums.isEmpty())
+            if (customAlbums != null && !customAlbums.isEmpty()) {
                 prefixAlbums = customAlbums;
+            }
         }
         if (mConfig.albumLoader != null) {
             ArrayList<Album> customAlbums = mConfig.albumLoader.postfixAlbums();
-            if (customAlbums != null && !customAlbums.isEmpty())
+            if (customAlbums != null && !customAlbums.isEmpty()) {
                 postfixAlbums = customAlbums;
+            }
         }
 
         MatrixCursor sortedAlbums = new MatrixCursor(COLUMNS);
@@ -116,16 +122,27 @@ public class AlbumCursor extends CursorLoader {
         long dateTaken = 0;
         ArrayList<Album> albums = new ArrayList<>();
         if (albumCursor != null) {
+            HashMap<String, Album> albumList = new HashMap<>();
             while (albumCursor.moveToNext()) {
-                Album album = Album.from(albumCursor);
-                albums.add(album);
-                totalCount += album.getCount();
-                long date = album.getDateTaken();
-                if (dateTaken < date) {
-                    dateTaken = date;
-                    allAlbumCoverId = album.getCoverId();
-                    allAlbumCoverPath = album.getCoverPath();
+                Album cursorAlbum = Album.from(albumCursor);
+                Album album = albumList.get(cursorAlbum.getId());
+                if (album == null) {
+                    album = cursorAlbum;
+                    albumList.put(album.getId(), album);
+
+                    long date = album.getDateTaken();
+                    if (dateTaken < date) {
+                        dateTaken = date;
+                        allAlbumCoverId = album.getCoverId();
+                        allAlbumCoverPath = album.getCoverPath();
+                    }
                 }
+                album.addCount();
+            }
+
+            for (Album item : albumList.values()) {
+                albums.add(item);
+                totalCount += item.getCount();
             }
         }
         for (Album prefixAlbum : prefixAlbums) {
@@ -149,7 +166,8 @@ public class AlbumCursor extends CursorLoader {
         }
 
         Collections.sort(albums, new Comparator<Album>() {
-            @Override public int compare(Album o1, Album o2) {
+            @Override
+            public int compare(Album o1, Album o2) {
                 return Math.min(Math.max(o1.getName().compareTo(o2.getName()), -1), 1);
             }
         });
