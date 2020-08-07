@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
-
 import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallerycore.data.cursor.AlbumCursor;
 import za.co.bwmuller.easygallerycore.utils.ContentUriUtil;
@@ -15,25 +14,39 @@ import za.co.bwmuller.easygallerycore.utils.ContentUriUtil;
  */
 
 public class Album implements Parcelable {
+
     public static final String ALBUM_ALL_ID = String.valueOf(-1);
+
     public static final Parcelable.Creator<Album> CREATOR = new Parcelable.Creator<Album>() {
-        @Override public Album createFromParcel(Parcel source) {
+        @Override
+        public Album createFromParcel(Parcel source) {
             return new Album(source);
         }
 
-        @Override public Album[] newArray(int size) {
+        @Override
+        public Album[] newArray(int size) {
             return new Album[size];
         }
     };
+
     private String dbId;
+
     private String bucketId;
+
     private Uri coverUri;
+
     private long count;
+
     private String name;
+
     private boolean video;
+
     private String coverMimeType;
+
     private long coverId;
+
     private long dateTaken;
+
     private boolean customAlbum;
 
     public Album(String dbId, String bucketId, String name, String coverUri, long dateTaken, long count) {
@@ -57,10 +70,11 @@ public class Album implements Parcelable {
         this.dateTaken = dateTaken;
         this.count = count;
         this.customAlbum = customAlbum;
-        if (customAlbum || ALBUM_ALL_ID.equals(bucketId))
+        if (customAlbum || ALBUM_ALL_ID.equals(bucketId)) {
             this.coverUri = Uri.parse(coverMimeType);
-        else
+        } else {
             this.coverUri = ContentUriUtil.getPath(coverMimeType, coverId);
+        }
     }
 
     Album(String dbId, String bucketId, String name, String coverMimeType, long coverId, long dateTaken, long count, boolean customAlbum, boolean video) {
@@ -73,10 +87,11 @@ public class Album implements Parcelable {
         this.name = name;
         this.video = video;
         this.customAlbum = customAlbum;
-        if (customAlbum || ALBUM_ALL_ID.equals(bucketId))
+        if (customAlbum || ALBUM_ALL_ID.equals(bucketId)) {
             this.coverUri = Uri.parse(coverMimeType);
-        else
+        } else {
             this.coverUri = ContentUriUtil.getPath(coverMimeType, coverId);
+        }
     }
 
     protected Album(Parcel in) {
@@ -92,11 +107,13 @@ public class Album implements Parcelable {
         this.customAlbum = in.readByte() != 0;
     }
 
-    @Override public int describeContents() {
+    @Override
+    public int describeContents() {
         return 0;
     }
 
-    @Override public void writeToParcel(Parcel dest, int flags) {
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.dbId);
         dest.writeString(this.bucketId);
         dest.writeLong(this.coverId);
@@ -129,7 +146,7 @@ public class Album implements Parcelable {
                 cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA)),
                 cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns._ID)),
                 cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)),
-                cursor.getLong(cursor.getColumnIndex(AlbumCursor.COLUMN_COUNT)),
+                cursor.getColumnIndex(AlbumCursor.COLUMN_COUNT) >= 0 ? cursor.getLong(cursor.getColumnIndex(AlbumCursor.COLUMN_COUNT)) : 0,
                 cursor.getColumnIndex(AlbumCursor.CUSTOM_ALBUM) >= 0 && Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(AlbumCursor.CUSTOM_ALBUM))));
     }
 
@@ -199,15 +216,25 @@ public class Album implements Parcelable {
 
 
     public static class Builder {
+
         private String dbId;
+
         private String bucketId;
+
         private Uri coverUri;
+
         private long count;
+
         private String name;
+
         private boolean video;
+
         private String coverMimeType;
+
         private long coverId;
+
         private long dateTaken;
+
         private boolean customAlbum;
 
         public Album build() {
@@ -215,7 +242,7 @@ public class Album implements Parcelable {
         }
 
         public Builder setBucketId(String id) {
-            this.dbId = String.valueOf(id) + "_custom";
+            this.dbId = id + "_custom";
             this.bucketId = String.valueOf(id);
             return this;
         }
