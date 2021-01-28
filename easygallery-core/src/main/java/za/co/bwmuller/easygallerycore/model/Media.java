@@ -57,29 +57,11 @@ public class Media {
     private final boolean custom;
 
     private Media(@NonNull String bucketId, long id, @Nullable String displayName, @Nullable String mimeType, long size, long duration, long dateTaken) {
-        this.custom = false;
-        this.bucketId = bucketId;
-        this.dbId = String.valueOf(id);
-        this.id = id;
-        this.displayName = displayName;
-        this.mimeType = mimeType;
-        this.uri = ContentUriUtil.getPath(mimeType, id);
-        this.size = size;
-        this.duration = duration;
-        this.dateTaken = dateTaken;
+        this(bucketId, id, null, displayName, mimeType, "", size, duration, dateTaken);
     }
 
     private Media(@NonNull String bucketId, long id, @Nullable String displayName, @Nullable String mimeType, Uri uri, long size, long duration, long dateTaken) {
-        this.custom = true;
-        this.bucketId = bucketId;
-        this.dbId = String.format(Locale.getDefault(), "custom_%s_%d", bucketId, id);
-        this.id = dbId.hashCode();
-        this.displayName = displayName;
-        this.mimeType = mimeType;
-        this.uri = uri;
-        this.size = size;
-        this.duration = duration;
-        this.dateTaken = dateTaken;
+        this(bucketId, 0, String.format(Locale.ROOT, "custom_%s_%d", bucketId, id), displayName, mimeType, uri.toString(), size, duration, dateTaken);
     }
 
     public Media(@NonNull String bucketId, long id, @Nullable String dbId, @Nullable String displayName, @Nullable String mimeType, String uri, long size, long duration, long dateTaken) {
@@ -191,7 +173,7 @@ public class Media {
     }
 
     public long getCustomId() {
-        return (getDbId().startsWith("custom")) ? Long.parseLong(getDbId().substring(String.format(Locale.getDefault(), "custom_%s_", bucketId).length())) : getId();
+        return (getDbId().startsWith("custom")) ? Long.parseLong(getDbId().substring(String.format(Locale.ROOT, "custom_%s_", bucketId).length())) : getId();
     }
 
     public long getId() {

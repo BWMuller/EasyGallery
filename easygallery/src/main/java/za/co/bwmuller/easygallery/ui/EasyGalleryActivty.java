@@ -29,7 +29,7 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
         return new Config() {{
             mediaGridColumnCount = 3;
             albumGridColumnCount = 2;
-            loaderScope = Scope.IMAGES;
+            loaderScope = Scope.ALL;
         }}.addExcludedDirectory("/Camera/")
                 .setCustomAlbum(new AlbumLoaderCallback() {
                     @Override
