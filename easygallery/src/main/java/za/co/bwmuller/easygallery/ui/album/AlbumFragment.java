@@ -72,8 +72,7 @@ public class AlbumFragment extends Fragment implements AlbumCallback {
     @Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        albumLoader = new AlbumLoader();
-        albumLoader.onCreate(getActivity(), this);
+        albumLoader = new AlbumLoader(getActivity(), this);
         albumLoader.loadAlbums();
     }
 
