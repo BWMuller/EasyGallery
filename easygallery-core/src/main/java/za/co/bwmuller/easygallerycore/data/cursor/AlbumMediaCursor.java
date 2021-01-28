@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import androidx.annotation.NonNull;
 import androidx.loader.content.CursorLoader;
 import android.webkit.MimeTypeMap;
 
@@ -199,7 +200,7 @@ public class AlbumMediaCursor extends CursorLoader {
         }
     }
 
-    public static CursorLoader newInstance(Context context, Album album, Config config) {
+    public static CursorLoader newInstance(@NonNull Context context, @NonNull Album album, @NonNull Config config) {
         String selection;
         String[] selectionArgs;
 

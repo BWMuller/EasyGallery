@@ -16,7 +16,7 @@ import za.co.bwmuller.easygallerycore.utils.ContentUriUtil;
  * Created by Bernhard Müller on 8/23/2017.
  */
 
-public class Media implements Parcelable {
+public class Media {
 
     public static final long ITEM_ID_CAPTURE = -1;
 
@@ -113,24 +113,6 @@ public class Media implements Parcelable {
         this.duration = in.readLong();
         this.dateTaken = in.readLong();
         this.custom = this.dbId.startsWith("custom");
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.bucketId);
-        dest.writeLong(this.id);
-        dest.writeString(this.dbId);
-        dest.writeString(this.displayName);
-        dest.writeString(this.mimeType);
-        dest.writeParcelable(this.uri, flags);
-        dest.writeLong(this.size);
-        dest.writeLong(this.duration);
-        dest.writeLong(this.dateTaken);
     }
 
     @Override

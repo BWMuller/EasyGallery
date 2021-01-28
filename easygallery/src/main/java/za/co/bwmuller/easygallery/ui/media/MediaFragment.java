@@ -71,8 +71,7 @@ public class MediaFragment extends Fragment implements AlbumCallback {
 
     @Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        albumMediaLoader = new AlbumMediaLoader();
-        albumMediaLoader.onCreate(getActivity(), this);
+        albumMediaLoader = new AlbumMediaLoader(getActivity(), this);
         albumMediaLoader.load((Album) getArguments().getParcelable(ARG_ALBUM));
     }
 
