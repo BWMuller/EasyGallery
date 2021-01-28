@@ -7,13 +7,15 @@ import android.view.View;
  */
 
 public abstract class ItemViewClickListener<T> implements View.OnClickListener {
+
     T item;
 
     public ItemViewClickListener(T item) {
         this.item = item;
     }
 
-    @Override public final void onClick(View v) {
+    @Override
+    public final void onClick(View v) {
         onClick(v, item);
     }
 

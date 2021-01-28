@@ -3,16 +3,15 @@ package za.co.bwmuller.easygallery.ui.album;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallery.R;
+import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallerycore.data.loader.AlbumCallback;
 import za.co.bwmuller.easygallerycore.data.loader.AlbumLoader;
 import za.co.bwmuller.easygallerycore.model.Album;
@@ -26,7 +25,9 @@ import za.co.bwmuller.easygallerycore.model.Album;
 public class AlbumFragment extends Fragment implements AlbumCallback {
 
     RecyclerView recyclerView;
+
     AlbumLoader albumLoader;
+
     private OnAlbumFragmentListener mListener;
 
     /**
@@ -54,7 +55,7 @@ public class AlbumFragment extends Fragment implements AlbumCallback {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_album_list, container, false);
 
         // Set the adapter
@@ -69,17 +70,20 @@ public class AlbumFragment extends Fragment implements AlbumCallback {
         return view;
     }
 
-    @Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         albumLoader = new AlbumLoader(getActivity(), this);
         albumLoader.loadAlbums();
     }
 
-    @Override public void onDestroy() {
+    @Override
+    public void onDestroy() {
         super.onDestroy();
-        if (albumLoader != null)
+        if (albumLoader != null) {
             albumLoader.onDestroy();
+        }
     }
 
     @Override
@@ -88,15 +92,18 @@ public class AlbumFragment extends Fragment implements AlbumCallback {
         mListener = null;
     }
 
-    @Override public void onCursorLoad(Cursor cursor) {
+    @Override
+    public void onCursorLoad(Cursor cursor) {
         getAdapter().swapCursor(cursor);
     }
 
-    @Override public void onCursorReset() {
+    @Override
+    public void onCursorReset() {
         getAdapter().swapCursor(null);
     }
 
-    @Override public Config getConfig() {
+    @Override
+    public Config getConfig() {
         return mListener.getConfig();
     }
 

@@ -2,29 +2,30 @@ package za.co.bwmuller.easygallery.ui.album;
 
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
+import androidx.recyclerview.widget.RecyclerView;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.facebook.imagepipeline.common.ResizeOptions;
 import com.facebook.imagepipeline.common.RotationOptions;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
-
-import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallery.R;
 import za.co.bwmuller.easygallery.ui.ItemViewClickListener;
-import za.co.bwmuller.easygallerycore.ui.RecyclerViewCursorAdapter;
+import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallerycore.model.Album;
+import za.co.bwmuller.easygallerycore.ui.RecyclerViewCursorAdapter;
 
 public class AlbumAdapter extends RecyclerViewCursorAdapter<AlbumAdapter.ViewHolder> {
 
     private final AlbumFragment.OnAlbumFragmentListener mListener;
+
     private final RecyclerView mRecyclerView;
+
     private final Drawable mPlaceholder;
+
     private final int mImageSize;
 
     public AlbumAdapter(RecyclerView recyclerView, AlbumFragment.OnAlbumFragmentListener listener) {
@@ -35,36 +36,20 @@ public class AlbumAdapter extends RecyclerViewCursorAdapter<AlbumAdapter.ViewHol
         mImageSize = recyclerView.getResources().getDisplayMetrics().widthPixels / listener.getConfig().albumGridColumnCount;
     }
 
-    @Override protected void onBindViewHolder(ViewHolder holder, Cursor cursor, int position) {
+    @Override
+    protected void onBindViewHolder(ViewHolder holder, Cursor cursor, int position) {
         Album item = Album.from(cursor);
         holder.populate(item, mListener.getConfig());
         holder.mView.setOnClickListener(new ItemViewClickListener<Album>(item) {
-            @Override public void onClick(View v, Album item) {
+            @Override
+            public void onClick(View v, Album item) {
                 mListener.onAlbumSelected(item);
             }
         });
-//        mediaViewHolder.mMediaGrid.bindMedia(item);
-//        mediaViewHolder.mMediaGrid.setOnMediaGridClickListener(this);
-//        setCheckStatus(item, mediaViewHolder.mMediaGrid);
-//
-//
-//        holder.mItem = mValues.get(position);
-//        holder.mIdView.setText(mValues.get(position).id);
-//        holder.mContentView.setText(mValues.get(position).content);
-//
-//        holder.mView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (null != mListener) {
-//                    // Notify the active callbacks interface (the activity, if the
-//                    // fragment is attached to one) that an item has been selected.
-//                    mListener.onListFragmentInteraction(holder.mItem);
-//                }
-//            }
-//        });
     }
 
-    @Override protected int getItemViewType(int position, Cursor cursor) {
+    @Override
+    protected int getItemViewType(int position, Cursor cursor) {
         return position;
     }
 
@@ -76,9 +61,13 @@ public class AlbumAdapter extends RecyclerViewCursorAdapter<AlbumAdapter.ViewHol
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
+
         final View mView;
+
         final SimpleDraweeView mSimpleDrawee;
+
         final TextView mNameTextView;
+
         final TextView mCountTextView;
 
         ViewHolder(View view) {
