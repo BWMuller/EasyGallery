@@ -2,14 +2,11 @@ package za.co.bwmuller.easygallery.ui;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.facebook.drawee.backends.pipeline.Fresco;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-
 import za.co.bwmuller.easygallery.R;
 import za.co.bwmuller.easygallery.ui.album.AlbumFragment;
 import za.co.bwmuller.easygallery.ui.media.MediaFragment;
@@ -20,25 +17,31 @@ import za.co.bwmuller.easygallerycore.model.Album;
 import za.co.bwmuller.easygallerycore.model.Media;
 
 public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragment.OnAlbumFragmentListener, MediaFragment.OnMediaFragmentListener {
-    private static int MEDIA_COUNT = 2000;
-    private static int ALBUM_COUNT = 10;
+
+    private static final int MEDIA_COUNT = 2000;
+
+    private static final int ALBUM_COUNT = 10;
+
     HashMap<String, ArrayList<Media>> albumMediaMap;
 
-    @Override public Config getConfig() {
+    @Override
+    public Config getConfig() {
         return new Config() {{
             mediaGridColumnCount = 3;
             albumGridColumnCount = 2;
             loaderScope = Scope.IMAGES;
         }}.addExcludedDirectory("/Camera/")
                 .setCustomAlbum(new AlbumLoaderCallback() {
-                    @Override public ArrayList<Album> prefixAlbums() {
+                    @Override
+                    public ArrayList<Album> prefixAlbums() {
                         ArrayList<Album> albums = new ArrayList<Album>();
                         Media media = getAlbumMedia().get("-2").get(0);
-                        albums.add(Album.createCustom("-2", "First Images", media.getContentUri(), media.getDateTaken(), getAlbumMedia().get("-2").size()));
+                        albums.add(Album.createCustom("-2", null, media.getContentUri(), media.getDateTaken(), getAlbumMedia().get("-2").size()));
                         return albums;
                     }
 
-                    @Override public ArrayList<Album> postfixAlbums() {
+                    @Override
+                    public ArrayList<Album> postfixAlbums() {
                         ArrayList<Album> albums = new ArrayList<Album>();
                         for (String key : getAlbumMedia().keySet()) {
                             Media media = getAlbumMedia().get(key).get(0);
@@ -48,7 +51,8 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
                     }
                 })
                 .setCustomMedia(new MediaLoaderCallback() {
-                    @Override public ArrayList<Media> allMedia() {
+                    @Override
+                    public ArrayList<Media> allMedia() {
                         ArrayList<Media> media = new ArrayList<Media>();
                         for (String key : getAlbumMedia().keySet()) {
                             media.addAll(getAlbumMedia().get(key));
@@ -56,7 +60,8 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
                         return media;
                     }
 
-                    @Override public ArrayList<Media> customAlbumMedia(Album album) {
+                    @Override
+                    public ArrayList<Media> customAlbumMedia(Album album) {
                         ArrayList<Media> media = new ArrayList<Media>();
                         media.addAll(getAlbumMedia().get(album.getId()));
                         return media;
@@ -64,16 +69,19 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
                 });
     }
 
-    @Override public void onAlbumSelected(Album item) {
+    @Override
+    public void onAlbumSelected(Album item) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content, MediaFragment.newInstance(item), item.getId())
                 .addToBackStack(item.getId())
                 .commit();
     }
 
-    @Override public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() <= 1)
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() <= 1) {
             getSupportFragmentManager().popBackStackImmediate();
+        }
         super.onBackPressed();
     }
 
@@ -89,7 +97,8 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
                 .commit();
     }
 
-    @Override public void onMediaSelected(Media item) {
+    @Override
+    public void onMediaSelected(Media item) {
     }
 
     private static String getImage(int seed) {
@@ -500,16 +509,20 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
                 for (int n = -2; n >= -1 * ALBUM_COUNT; n--) {
                     ArrayList<Media> media = new ArrayList<Media>();
                     for (int i = 0; i < MEDIA_COUNT; i++) {
-                        media.add(Media.newBuilder(String.valueOf(n))
+                        Media.Builder m = Media.newBuilder(String.valueOf(n))
                                 .setId(i)
-                                .setDisplayName(String.valueOf(i))
+//                                .setDisplayName(String.valueOf(i))
                                 .setMimeType("image/jpeg")
                                 .setUri(getImage(i))
-                                .setDateTaken(System.currentTimeMillis() - (int) (Math.random() * 100000))
-                                .build());
+                                .setDateTaken(System.currentTimeMillis() - (int) (Math.random() * 100000));
+//                        if (n < -1 * (ALBUM_COUNT / 2)) {
+//                            m.setDisplayName(null);
+//                        }
+                        media.add(m.build());
                     }
                     Collections.sort(media, new Comparator<Media>() {
-                        @Override public int compare(Media o1, Media o2) {
+                        @Override
+                        public int compare(Media o1, Media o2) {
                             return Double.compare(o2.getDateTaken(), o1.getDateTaken());
                         }
                     });

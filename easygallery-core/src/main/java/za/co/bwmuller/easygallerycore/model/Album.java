@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import za.co.bwmuller.easygallerycore.Config;
 import za.co.bwmuller.easygallerycore.data.cursor.AlbumCursor;
 import za.co.bwmuller.easygallerycore.utils.ContentUriUtil;
@@ -29,27 +31,31 @@ public class Album implements Parcelable {
         }
     };
 
-    private String dbId;
+    @NonNull
+    private final String dbId;
 
-    private String bucketId;
+    @NonNull
+    private final String bucketId;
 
-    private Uri coverUri;
+    private final Uri coverUri;
 
     private long count;
 
-    private String name;
+    @Nullable
+    private final String name;
 
     private boolean video;
 
-    private String coverMimeType;
+    @Nullable
+    private final String coverMimeType;
 
-    private long coverId;
+    private final long coverId;
 
-    private long dateTaken;
+    private final long dateTaken;
 
-    private boolean customAlbum;
+    private final boolean customAlbum;
 
-    public Album(String dbId, String bucketId, String name, String coverUri, long dateTaken, long count) {
+    public Album(@NonNull String dbId, @NonNull String bucketId, @Nullable String name, @Nullable String coverUri, long dateTaken, long count) {
         this.dbId = dbId;
         this.bucketId = bucketId;
         this.name = name;
@@ -61,7 +67,7 @@ public class Album implements Parcelable {
         this.customAlbum = true;
     }
 
-    Album(String dbId, String bucketId, String name, String coverMimeType, long coverId, long dateTaken, long count, boolean customAlbum) {
+    Album(@NonNull String dbId, @NonNull String bucketId, @Nullable String name, @Nullable String coverMimeType, long coverId, long dateTaken, long count, boolean customAlbum) {
         this.dbId = dbId;
         this.bucketId = bucketId;
         this.name = name;
@@ -77,7 +83,7 @@ public class Album implements Parcelable {
         }
     }
 
-    Album(String dbId, String bucketId, String name, String coverMimeType, long coverId, long dateTaken, long count, boolean customAlbum, boolean video) {
+    Album(@NonNull String dbId, @NonNull String bucketId, @Nullable String name, @Nullable String coverMimeType, long coverId, long dateTaken, long count, boolean customAlbum, boolean video) {
         this.dbId = dbId;
         this.bucketId = bucketId;
         this.coverMimeType = coverMimeType;
@@ -158,6 +164,7 @@ public class Album implements Parcelable {
         return count;
     }
 
+    @Nullable
     public String getName() {
         return name;
     }
@@ -210,25 +217,29 @@ public class Album implements Parcelable {
         count++;
     }
 
-    public static Album createCustom(String id, String displayName, Uri contentUri, long dateTaken, int mediaCount) {
+    public static Album createCustom(@NonNull String id, @Nullable String displayName, Uri contentUri, long dateTaken, int mediaCount) {
         return new Album(id, id, displayName, contentUri.toString(), dateTaken, mediaCount);
     }
 
 
     public static class Builder {
 
-        private String dbId;
+        @NonNull
+        private String dbId = "";
 
-        private String bucketId;
+        @NonNull
+        private String bucketId = "";
 
         private Uri coverUri;
 
         private long count;
 
+        @Nullable
         private String name;
 
         private boolean video;
 
+        @Nullable
         private String coverMimeType;
 
         private long coverId;
@@ -238,7 +249,7 @@ public class Album implements Parcelable {
         private boolean customAlbum;
 
         public Album build() {
-            return new Album(dbId, bucketId, name, coverMimeType, coverId, dateTaken, count, customAlbum);
+            return new Album(dbId, bucketId, name, coverMimeType, coverId, dateTaken, count, customAlbum, video);
         }
 
         public Builder setBucketId(String id) {
