@@ -55,10 +55,10 @@ class AlbumCursor private constructor(
             val albumList = HashMap<String, Album>()
             while (albumCursor.moveToNext()) {
                 val cursorAlbum = Album.from(albumCursor)
-                var album = albumList[cursorAlbum.id]
+                var album = albumList[cursorAlbum.bucketId]
                 if (album == null) {
                     album = cursorAlbum
-                    albumList[album.id] = album
+                    albumList[album.bucketId] = album
                     val date = album.dateTaken
                     if (dateTaken < date) {
                         dateTaken = date
@@ -66,7 +66,7 @@ class AlbumCursor private constructor(
                         allAlbumCoverPath = album.coverPath
                     }
                 }
-                album?.addCount()
+                album.addCount()
             }
             for (item in albumList.values) {
                 albums.add(item)

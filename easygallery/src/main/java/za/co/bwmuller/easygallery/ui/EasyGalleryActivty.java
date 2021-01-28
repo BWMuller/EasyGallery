@@ -63,7 +63,7 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
                     @Override
                     public ArrayList<Media> customAlbumMedia(Album album) {
                         ArrayList<Media> media = new ArrayList<Media>();
-                        media.addAll(getAlbumMedia().get(album.getId()));
+                        media.addAll(getAlbumMedia().get(album.getBucketId()));
                         return media;
                     }
                 });
@@ -72,8 +72,8 @@ public class EasyGalleryActivty extends AppCompatActivity implements AlbumFragme
     @Override
     public void onAlbumSelected(Album item) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content, MediaFragment.newInstance(item), item.getId())
-                .addToBackStack(item.getId())
+                .replace(R.id.content, MediaFragment.newInstance(item), item.getBucketId())
+                .addToBackStack(item.getBucketId())
                 .commit();
     }
 

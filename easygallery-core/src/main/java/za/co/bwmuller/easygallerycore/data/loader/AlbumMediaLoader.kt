@@ -49,7 +49,7 @@ class AlbumMediaLoader(val activity: FragmentActivity, val callbacks: AlbumCallb
     fun load(target: Album) {
         val args = Bundle()
         args.putParcelable(ARGS_ALBUM, target)
-        LOADER_ID = getLoaderId(target.id)
+        LOADER_ID = getLoaderId(target.bucketId)
         mLoaderManager.initLoader(LOADER_ID, args, this)
     }
 

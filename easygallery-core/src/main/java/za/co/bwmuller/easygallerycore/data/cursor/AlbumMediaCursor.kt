@@ -198,19 +198,19 @@ class AlbumMediaCursor private constructor(
                         selection = SELECTION_ALBUM_FOR_IMAGE_MEDIA_TYPE
                         selectionArgs = getSelectionAlbumArgsForSingleMediaType(
                             FileColumns.MEDIA_TYPE_IMAGE,
-                            album.id
+                            album.bucketId
                         )
                     }
                     config.loaderScope === VIDEOS -> {
                         selection = SELECTION_ALBUM_FOR_VIDEO_MEDIA_TYPE
                         selectionArgs = getSelectionAlbumArgsForSingleMediaType(
                             FileColumns.MEDIA_TYPE_VIDEO,
-                            album.id
+                            album.bucketId
                         )
                     }
                     else -> {
                         selection = SELECTION_ALBUM
-                        selectionArgs = getSelectionAlbumArgs(album.id)
+                        selectionArgs = getSelectionAlbumArgs(album.bucketId)
                     }
                 }
             }
